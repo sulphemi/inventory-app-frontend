@@ -1,0 +1,76 @@
+:root {
+    --white: #ffffff;
+    --light-gray: #e0e0e0;
+    --gray: #c4c4c4;
+    --black: #000000;
+    --light-yellow: #f8f8c4;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0px;
+}
+
+#table-header {
+    background-color: var(--black);
+    color: var(--white);
+}
+
+.table {
+    min-width: fit-content;
+}
+
+.inv-row {
+    display: flex;
+}
+
+.inv-row:nth-child(even) {
+    background-color: var(--light-gray);
+}
+
+.inv-row:hover {
+    background-color: var(--light-yellow);
+}
+
+.cell {
+    display: block;
+    overflow: hidden;
+    padding-left: 10px;
+    padding-right: 10px;
+    height: 25px;
+}
+
+.cell-warehouse_id {
+    width: 115px;
+}
+
+.cell-sku {
+    width: 250px;
+}
+
+.cell-size {
+    width: 80px;
+}
+
+.cell-notes {
+    width: 200px;
+}
+
+.cell-quantity {
+    width: 70px;
+}
+
+.cell-condition {
+    width: 200px;
+}
+
+.cell-inbounddate {
+    width: 150px;
+}
+
+.cell-outbounddate {
+    width: 150px;
+}
