@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext } from "react";
+import { useState, useEffect, createContext, useContext } from "react";
 import { Routes, Route, Link } from "react-router";
 import "./App.css";
 
@@ -20,9 +20,9 @@ interface NotNullFilter {
   column: string;
 }
 
-const SortContext = createContext<SortFilter[]>([]);
-const PrefixContext = createContext<PrefixFilter[]>([]);
-const NotNullFilter = createContext<NotNullFilter[]>([]);
+const SortContext = createContext<{ sortList: SortFilter[], setSortList: (s: SortFilter[]) => void }>({ sortList: [], setSortList: () => {} });
+const PrefixContext = createContext<{ prefixList: PrefixFilter[], setPrefixList: (p: PrefixFilter[]) => void }>({ prefixList: [], setPrefixList: () => {} });
+const NotNullContext = createContext<NotNullFilter[]>([]);
 
 function urlBuilder(limit, offset, sorts, prefixes, nonnull) {
   let url = `/api/items?limit=${limit}&offset=${offset}`;
@@ -33,7 +33,7 @@ function urlBuilder(limit, offset, sorts, prefixes, nonnull) {
 
   const prefixCol = prefixes.map((prefix) => prefix.column);
   const prefixTxt = prefixes.map((prefix) => prefix.prefix);
-  url += `&filterCols=${prefixCol.join(",")}&filterVals=${prefixTxt.join(",")}`;
+  url += `&filterBy=${prefixCol.join(",")}&filterValue=${prefixTxt.join(",")}`;
 
   // ignoring nonnull for now
 
@@ -91,7 +91,7 @@ function PrefixOption({ current, updatePrefix, removePrefix }) {
           ))
         }
       </select>
-      <input onChange={(event) => {updatePrefix({ column: current.column, prefix: event.target.value })}}/>
+      <input value={current.prefix} onChange={(event) => {updatePrefix({ column: current.column, prefix: event.target.value })}}/>
       <button onClick={removePrefix}>delete</button>
     </div>
   );
@@ -106,8 +106,8 @@ function createPrefixFilter(): PrefixFilter {
 }
 
 function FiltersMenu() {
-  const [ sortList, setSortList ] = useState<SortFilter[]>([]);
-  const [ prefixList, setPrefixList ] = useState<PrefixFilter[]>([]);
+  const { sortList, setSortList } = useContext(SortContext);
+  const { prefixList, setPrefixList } = useContext(PrefixContext);
 
   return (
     <>
@@ -174,19 +174,21 @@ function InventoryRow({ data }) {
 
 function InventoryPage() {
   const [ items, setItems ] = useState([]);
+  const { sortList } = useContext(SortContext);
+  const { prefixList } = useContext(PrefixContext);
 
   useEffect(() => {
-    fetch("/api/items?limit=50")
+    fetch(urlBuilder(50, 0, sortList, prefixList, []))
       .then((result) => result.json())
       .then((data) => setItems(data.items));
-  }, []);
+  }, [sortList, prefixList]);
 
   return (
     <>
       <NavBar />
       <p>{items.length} items in total</p>
 
-      <div class="table">
+      <div className="table">
         <div id="table-header" className="inv-row">
           <span className="cell cell-warehouse_id">序号</span>
           <span className="cell cell-sku">SKU</span>
@@ -207,13 +209,18 @@ function InventoryPage() {
 }
 
 function App() {
+  const [ sortList, setSortList ] = useState<SortFilter[]>([]);
+  const [ prefixList, setPrefixList ] = useState<PrefixFilter[]>([]);
+
   return (
-    <>
-      <Routes>
-        <Route path="/" element={<InventoryPage />} />
-        <Route path="/filters" element={<FiltersMenu />} />
-      </Routes>
-    </>
+    <SortContext.Provider value={{ sortList, setSortList }}>
+      <PrefixContext.Provider value={{ prefixList, setPrefixList }}>
+        <Routes>
+          <Route path="/" element={<InventoryPage />} />
+          <Route path="/filters" element={<FiltersMenu />} />
+        </Routes>
+      </PrefixContext.Provider>
+    </SortContext.Provider>
   );
 }
 
