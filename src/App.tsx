@@ -8,7 +8,7 @@ interface ItemData {
 
 interface SortFilter {
   column: string;
-  direction: "ASC" | "DSC";
+  direction: "ASC" | "DESC";
 }
 
 interface PrefixFilter {
@@ -22,20 +22,27 @@ interface NotNullFilter {
 
 const SortContext = createContext<{ sortList: SortFilter[], setSortList: (s: SortFilter[]) => void }>({ sortList: [], setSortList: () => {} });
 const PrefixContext = createContext<{ prefixList: PrefixFilter[], setPrefixList: (p: PrefixFilter[]) => void }>({ prefixList: [], setPrefixList: () => {} });
-const NotNullContext = createContext<NotNullFilter[]>([]);
+const NotNullContext = createContext<{ notNullList: NotNullFilter[], setNotNullList: (n: NotNullFilter[]) => void }>({ notNullList: [], setNotNullList: () => {} });
 
 function urlBuilder(limit, offset, sorts, prefixes, nonnull) {
   let url = `/api/items?limit=${limit}&offset=${offset}`;
 
   const sortBy = sorts.map((sort) => sort.column);
   const sortDirection = sorts.map((sort) => sort.direction);
-  url += `&sortBy=${sortBy.join(",")}&direction=${sortDirection.join(",")}`;
+  if (sortBy.length > 0) {
+    url += `&sortBy=${sortBy.join(",")}&direction=${sortDirection.join(",")}`;
+  }
 
   const prefixCol = prefixes.map((prefix) => prefix.column);
   const prefixTxt = prefixes.map((prefix) => prefix.prefix);
-  url += `&filterBy=${prefixCol.join(",")}&filterValue=${prefixTxt.join(",")}`;
+  if (prefixCol.length > 0) {
+    url += `&filterCols=${prefixCol.join(",")}&filterVals=${prefixTxt.join(",")}`;
+  }
 
-  // ignoring nonnull for now
+  const nonNullCols = nonnull.map((nn) => nn.column);
+  if (nonNullCols.length > 0) {
+    url += `&notNull=${nonNullCols.join(",")}`;
+  }
 
   return url;
 }
@@ -72,7 +79,7 @@ function SortOption({ current, updateSort, removeSort }) {
           ))
         }
       </select>
-      <select value={current.direction} onChange={(event) => {updateSort({ column: current.column, direction: event.target.value })}}>
+      <select value={current.direction} onChange={(event) => {updateSort({ column: current.column, direction: event.target.value as "ASC" | "DESC" })}}>
         <option value="ASC">ascending</option>
         <option value="DESC">descending</option>
       </select>
@@ -97,6 +104,22 @@ function PrefixOption({ current, updatePrefix, removePrefix }) {
   );
 }
 
+function NotNullOption({ current, updateNotNull, removeNotNull }) {
+  return (
+    <div>
+      <span>must have a</span>
+      <select value={current.column} onChange={(event) => {updateNotNull({ column: event.target.value })}}>
+        {
+          Object.keys(columnNames).map((column, index) => (
+            <option key={index} value={column}>{columnNames[column]}</option>
+          ))
+        }
+      </select>
+      <button onClick={removeNotNull}>delete</button>
+    </div>
+  );
+}
+
 function createSortFilter(): SortFilter {
   return { column: "warehouse_id", direction: "ASC" };
 }
@@ -105,9 +128,14 @@ function createPrefixFilter(): PrefixFilter {
   return { column: "warehouse_id", prefix: "" };
 }
 
+function createNotNullFilter(): NotNullFilter {
+  return { column: "warehouse_id" };
+}
+
 function FiltersMenu() {
   const { sortList, setSortList } = useContext(SortContext);
   const { prefixList, setPrefixList } = useContext(PrefixContext);
+  const { notNullList, setNotNullList } = useContext(NotNullContext);
 
   return (
     <>
@@ -153,6 +181,26 @@ function FiltersMenu() {
           <button onClick={() => {setPrefixList([ ...prefixList, createPrefixFilter() ])}}>add new</button>
         </div>
       </div>
+      <div>
+        <h2>not null</h2>
+        <div>
+          { notNullList.map((nnObject, index) => (
+            <NotNullOption key={index} current={nnObject}
+              updateNotNull={(newNN) => {
+                const newNNList = [ ...notNullList ];
+                newNNList[index] = newNN;
+                setNotNullList(newNNList);
+              }}
+              removeNotNull={() => {
+                const newNNList = [ ...notNullList ];
+                newNNList.splice(index, 1);
+                setNotNullList(newNNList);
+              }}
+            />)
+          ) }
+          <button onClick={() => {setNotNullList([ ...notNullList, createNotNullFilter() ])}}>add new</button>
+        </div>
+      </div>
     </>
   );
 }
@@ -176,12 +224,13 @@ function InventoryPage() {
   const [ items, setItems ] = useState([]);
   const { sortList } = useContext(SortContext);
   const { prefixList } = useContext(PrefixContext);
+  const { notNullList } = useContext(NotNullContext);
 
   useEffect(() => {
-    fetch(urlBuilder(50, 0, sortList, prefixList, []))
+    fetch(urlBuilder(50, 0, sortList, prefixList, notNullList))
       .then((result) => result.json())
-      .then((data) => setItems(data.items));
-  }, [sortList, prefixList]);
+      .then((data) => setItems(data.items || []));
+  }, [sortList, prefixList, notNullList]);
 
   return (
     <>
@@ -200,8 +249,8 @@ function InventoryPage() {
           <span className="cell cell-outbounddate">出仓日期</span>
         </div>
 
-        { items.map((item) => (
-          <InventoryRow key={item.internal_id} data={item} />
+        { items.map((item, index) => (
+          <InventoryRow key={item.internal_id || index} data={item} />
         )) }
       </div>
     </>
@@ -211,14 +260,17 @@ function InventoryPage() {
 function App() {
   const [ sortList, setSortList ] = useState<SortFilter[]>([]);
   const [ prefixList, setPrefixList ] = useState<PrefixFilter[]>([]);
+  const [ notNullList, setNotNullList ] = useState<NotNullFilter[]>([]);
 
   return (
     <SortContext.Provider value={{ sortList, setSortList }}>
       <PrefixContext.Provider value={{ prefixList, setPrefixList }}>
-        <Routes>
-          <Route path="/" element={<InventoryPage />} />
-          <Route path="/filters" element={<FiltersMenu />} />
-        </Routes>
+        <NotNullContext.Provider value={{ notNullList, setNotNullList }}>
+          <Routes>
+            <Route path="/" element={<InventoryPage />} />
+            <Route path="/filters" element={<FiltersMenu />} />
+          </Routes>
+        </NotNullContext.Provider>
       </PrefixContext.Provider>
     </SortContext.Provider>
   );
