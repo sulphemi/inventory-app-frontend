@@ -220,18 +220,7 @@ function InventoryRow({ data }) {
   );
 }
 
-function InventoryPage() {
-  const [ items, setItems ] = useState([]);
-  const { sortList } = useContext(SortContext);
-  const { prefixList } = useContext(PrefixContext);
-  const { notNullList } = useContext(NotNullContext);
-
-  useEffect(() => {
-    fetch(urlBuilder(50, 0, sortList, prefixList, notNullList))
-      .then((result) => result.json())
-      .then((data) => setItems(data.items || []));
-  }, [sortList, prefixList, notNullList]);
-
+function InventoryPage({ items }) {
   return (
     <>
       <NavBar />
@@ -262,12 +251,23 @@ function App() {
   const [ prefixList, setPrefixList ] = useState<PrefixFilter[]>([]);
   const [ notNullList, setNotNullList ] = useState<NotNullFilter[]>([]);
 
+  const [ items, setItems ] = useState([]);
+
+  // this should probably automatically recalculate when the lists change
+  const itemsURL = urlBuilder(50, 0, sortList, prefixList, notNullList);
+
+  useEffect(() => {
+    fetch(itemsURL)
+      .then((result) => result.json())
+      .then((data) => setItems(data.items || []));
+  }, [ itemsURL ]);
+
   return (
     <SortContext.Provider value={{ sortList, setSortList }}>
       <PrefixContext.Provider value={{ prefixList, setPrefixList }}>
         <NotNullContext.Provider value={{ notNullList, setNotNullList }}>
           <Routes>
-            <Route path="/" element={<InventoryPage />} />
+            <Route path="/" element={<InventoryPage items={items} />} />
             <Route path="/filters" element={<FiltersMenu />} />
           </Routes>
         </NotNullContext.Provider>
