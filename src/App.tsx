@@ -506,10 +506,7 @@ function NewItemPage() {
       return formatted === dateString;
   }
 
-  const handleWarehouseIdChange = (val: string) => {
-    const wid = val.trim();
-    let updatedInboundDate = formData.inbounddate;
-
+  const widToDate = (wid: string) => {
     if (wid.length >= 6) {
       const yyy_ = (new Date()).getFullYear().toString().slice(0, 3);
       const _y = wid[1];
@@ -518,11 +515,17 @@ function NewItemPage() {
       const interpretedDate = `${yyy_}${_y}-${mm}-${dd}`;
 
       if (isValidDate(interpretedDate)) {
-        updatedInboundDate = interpretedDate;
+        return interpretedDate;
       }
     }
 
-    setFormData({ ...formData, warehouse_id: wid, inbounddate: updatedInboundDate });
+    return null;
+  }
+
+  const handleWarehouseIdChange = (val: string) => {
+    const wid = val.trim();
+    const newInboundDate = widToDate(wid) ?? formData.inbounddate;
+    setFormData({ ...formData, warehouse_id: wid, inbounddate: newInboundDate });
   };
 
   const handleSkuInput = async (val: string) => {
@@ -550,7 +553,9 @@ function NewItemPage() {
       const result = await res.json();
       if (result.success) {
         alert("Success");
-        setFormData({ ...formDataTemplate, warehouse_id: parseInt(formData.warehouse_id) + 1 })
+        const new_wid = (parseInt(formData.warehouse_id) + 1).toString();
+        const new_date = widToDate(new_wid) ?? "";
+        setFormData({ ...formDataTemplate, warehouse_id: new_wid, inbounddate: new_date });
       } else {
         alert("Error", result.message);
       }
