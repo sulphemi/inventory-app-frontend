@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@100..900&display=swap');
+
 :root {
     --white: #ffffff;
     --light-gray: #e0e0e0;
@@ -8,6 +10,10 @@
 
 * {
     box-sizing: border-box;
+    font-family: "Noto Sans SC", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
 }
 
 body {
@@ -19,15 +25,47 @@ body {
     color: var(--white);
 }
 
+.navbar ul {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    background-color: var(--black);
+}
+
+.navbar ul li {
+    list-style-type: none;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.navbar ul li a {
+    padding: 10px;
+    color: white;
+}
+
+.navbar ul li a.active {
+    color: var(--black);
+    background-color: var(--white);
+}
+
 .table {
     min-width: fit-content;
 }
 
-.inv-row {
-    display: flex;
+.inv-header {
+    height: 50px;
 }
 
-.inv-row:nth-child(even) {
+.inv-header p {
+    margin: 0;
+}
+
+.inv-row {
+    display: flex;
+    height: 26px;
+}
+
+.even-row {
     background-color: var(--light-gray);
 }
 
@@ -73,4 +111,23 @@ body {
 
 .cell-outbounddate {
     width: 150px;
+}
+
+.sku-box {
+    border: 1px solid black;
+    height: 200px;
+    overflow: scroll;
+}
+
+.sku-suggestion {
+    font-size: small;
+    padding: 1px;
+    margin: 0;
+    cursor: pointer;
+}
+
+
+.sku-suggestion:hover {
+    color: white;
+    background: black;
 }
