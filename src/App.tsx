@@ -185,6 +185,7 @@ function FiltersMenu() {
     <>
       <NavBar />
       <h1>filters</h1>
+      <p><FilterCount /></p>
       <div>
         <h2>sorting</h2>
         <div>
@@ -390,7 +391,7 @@ function InventoryPage() {
     <>
       <div className="inv-header">
         <NavBar />
-        <p>{totalLength} items in total ({sortList.length + prefixList.length + notNullList.length} conditions applied)</p>
+        <p>{totalLength} items (<FilterCount />)</p>
       </div>
 
       <div
@@ -431,6 +432,15 @@ function InventoryPage() {
   );
 }
 
+function FilterCount() {
+  const { sortList } = useContext(SortContext);
+  const { prefixList } = useContext(PrefixContext);
+  const { notNullList } = useContext(NotNullContext);
+
+  const totalConditions = sortList.length + prefixList.length + notNullList.length;
+  return (<span>{totalConditions} conditions applied</span>);
+}
+
 function ExportPage() {
   const { sortList } = useContext(SortContext);
   const { prefixList } = useContext(PrefixContext);
@@ -456,7 +466,7 @@ function ExportPage() {
       <a href={`/api/monthly_summary?date=${selectedDate}`} >download</a>
 
       <h2>current view</h2>
-      <p>currently there are {sortList.length + prefixList.length + notNullList.length} filters applied</p>
+      <p><FilterCount /></p>
       <a href={urlBuilder("export", 0, 0, sortList, prefixList, notNullList)}>download</a>
     </>
   );
