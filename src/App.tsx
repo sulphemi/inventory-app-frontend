@@ -4,14 +4,16 @@ import "./App.css";
 
 interface ItemData {
   internal_id: string;
-  warehouse_id: string | null;
+  warehouse_id: string;
   sku: string;
   size: string;
   notes: string;
   quantity: number;
-  condition: string;
+  condition_id: string;
   inbounddate: string;
   outbounddate: string;
+  status_id: string;
+  addendum: string;
 }
 
 interface SortFilter {
@@ -43,7 +45,7 @@ const NotNullContext = createContext<{
   setNotNullList: (n: NotNullFilter[]) => void;
 }>({ notNullList: [], setNotNullList: () => {} });
 
-function urlBuilder(queryType, limit, offset, sorts, prefixes, nonnull) {
+function urlBuilder(queryType: string, limit: number, offset: number, sorts: SortFilter[], prefixes: PrefixFilter[], nonnull: NotNullFilter[]) {
   let url = `/api/${queryType}?offset=${offset}&`;
 
   if (limit > 0) {
@@ -83,7 +85,7 @@ function NavBar() {
   );
 }
 
-const columnNames = {
+const columnNames: Record<string, string> = {
   "warehouse_id": "序号",
   "sku": "SKU",
   "size": "尺寸",
@@ -94,7 +96,7 @@ const columnNames = {
   "outbounddate": "出仓日期",
 };
 
-function SortOption({ current, updateSort, removeSort }) {
+function SortOption({ current, updateSort, removeSort }: any) {
   return (
     <div>
       <select
@@ -122,7 +124,7 @@ function SortOption({ current, updateSort, removeSort }) {
   );
 }
 
-function PrefixOption({ current, updatePrefix, removePrefix }) {
+function PrefixOption({ current, updatePrefix, removePrefix }: any) {
   return (
     <div>
       <select
@@ -147,7 +149,7 @@ function PrefixOption({ current, updatePrefix, removePrefix }) {
   );
 }
 
-function NotNullOption({ current, updateNotNull, removeNotNull }) {
+function NotNullOption({ current, updateNotNull, removeNotNull }: any) {
   return (
     <div>
       <span>must have a</span>
@@ -193,7 +195,7 @@ function FiltersMenu() {
             <SortOption
               key={index}
               current={sortObject}
-              updateSort={(newSort) => {
+              updateSort={(newSort: any) => {
                 const newSortList = [...sortList];
                 newSortList[index] = newSort;
                 setSortList(newSortList);
@@ -215,7 +217,7 @@ function FiltersMenu() {
             <PrefixOption
               key={index}
               current={prefixObject}
-              updatePrefix={(newPrefix) => {
+              updatePrefix={(newPrefix: any) => {
                 const newPrefixList = [...prefixList];
                 newPrefixList[index] = newPrefix;
                 setPrefixList(newPrefixList);
@@ -237,7 +239,7 @@ function FiltersMenu() {
             <NotNullOption
               key={index}
               current={nnObject}
-              updateNotNull={(newNN) => {
+              updateNotNull={(newNN: any) => {
                 const newNNList = [...notNullList];
                 newNNList[index] = newNN;
                 setNotNullList(newNNList);
@@ -275,16 +277,16 @@ function InventoryRow({ data, isEven }: { data: ItemData | null, isEven: boolean
   }
 
   return (
-    <div className={rowClass}>
+    <Link to={`/edit/${data.internal_id}`} className={rowClass} style={{ textDecoration: 'none', color: 'inherit' }}>
       <span className="cell cell-warehouse_id">{data.warehouse_id}</span>
       <span className="cell cell-sku">{data.sku}</span>
       <span className="cell cell-size">{data.size}</span>
       <span className="cell cell-notes">{data.notes}</span>
       <span className="cell cell-quantity">{data.quantity}</span>
-      <span className="cell cell-condition">{data.condition}</span>
+      <span className="cell cell-condition">{data.condition_id}</span>
       <span className="cell cell-inbounddate">{data.inbounddate}</span>
       <span className="cell cell-outbounddate">{data.outbounddate}</span>
-    </div>
+    </Link>
   );
 }
 
@@ -455,7 +457,7 @@ function ExportPage() {
 
   return (
     <>
-      <NavBar currentPage="/export" />
+      <NavBar />
       <h1>Export</h1>
       <h2>monthly summary</h2>
       <input
@@ -472,13 +474,8 @@ function ExportPage() {
   );
 }
 
-interface Condition {
-  id: number;
-  condition: string;
-}
-
-function NewItemPage() {
-  const formDataTemplate = {
+function ItemForm({ initialData, onSubmit, title }: { initialData: Partial<ItemData>, onSubmit: (data: any) => Promise<void>, title: string }) {
+  const [formData, setFormData] = useState({
     warehouse_id: "",
     sku: "",
     size: "",
@@ -488,22 +485,23 @@ function NewItemPage() {
     inbounddate: "",
     outbounddate: "",
     status_id: "1",
-    addendum: ""
-  };
-
-  const [formData, setFormData] = useState({ ...formDataTemplate });
+    addendum: "",
+    ...initialData
+  });
 
   const [skuSuggestions, setSkuSuggestions] = useState<{ sku: string }[]>([]);
 
-  function isValidDate(dateString) {
-      const dateObject = new Date(dateString);
+  useEffect(() => {
+    if (initialData) {
+      setFormData(prev => ({ ...prev, ...initialData }));
+    }
+  }, [initialData]);
 
-      // is it a valid date object?
-      if (isNaN(dateObject.getTime())) return false;
-
-      // did the date roll over?
-      const formatted = dateObject.toISOString().split('T')[0];
-      return formatted === dateString;
+  function isValidDate(dateString: string) {
+    const dateObject = new Date(dateString);
+    if (isNaN(dateObject.getTime())) return false;
+    const formatted = dateObject.toISOString().split('T')[0];
+    return formatted === dateString;
   }
 
   const widToDate = (wid: string) => {
@@ -513,14 +511,10 @@ function NewItemPage() {
       const mm = wid.slice(2, 4);
       const dd = wid.slice(4, 6);
       const interpretedDate = `${yyy_}${_y}-${mm}-${dd}`;
-
-      if (isValidDate(interpretedDate)) {
-        return interpretedDate;
-      }
+      if (isValidDate(interpretedDate)) return interpretedDate;
     }
-
     return null;
-  }
+  };
 
   const handleWarehouseIdChange = (val: string) => {
     const wid = val.trim();
@@ -530,7 +524,6 @@ function NewItemPage() {
 
   const handleSkuInput = async (val: string) => {
     setFormData({ ...formData, sku: val });
-
     try {
       const res = await fetch(`/api/suggest?partialSKU=${encodeURIComponent(val)}`);
       if (res.ok) {
@@ -544,53 +537,35 @@ function NewItemPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const res = await fetch("/api/items", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      const result = await res.json();
-      if (result.success) {
-        alert("Success");
-        const new_wid = (parseInt(formData.warehouse_id) + 1).toString();
-        const new_date = widToDate(new_wid) ?? "";
-        setFormData({ ...formDataTemplate, warehouse_id: new_wid, inbounddate: new_date });
-      } else {
-        alert("Error", result.message);
-      }
-    } catch (error) {
-      console.error("Submit error", error);
-    }
+    await onSubmit(formData);
   };
 
   return (
     <>
-      <NavBar />
-      <h1>添加新行</h1>
+      <h1>{title}</h1>
       <form onSubmit={handleSubmit}>
         <div className="form-section">
           <label>序号</label>
-          <input 
-            type="text" 
-            required 
-            value={formData.warehouse_id} 
-            onChange={(e) => handleWarehouseIdChange(e.target.value)} 
+          <input
+            type="text"
+            required
+            value={formData.warehouse_id}
+            onChange={(e) => handleWarehouseIdChange(e.target.value)}
           />
         </div>
 
         <div className="form-section">
           <label>SKU</label>
-          <input 
-            type="text" 
-            value={formData.sku} 
-            onChange={(e) => handleSkuInput(e.target.value)} 
+          <input
+            type="text"
+            value={formData.sku}
+            onChange={(e) => handleSkuInput(e.target.value)}
           />
           <div className="sku-box">
             {skuSuggestions.map((item, i) => (
-              <p 
-                key={i} 
-                className="sku-suggestion" 
+              <p
+                key={i}
+                className="sku-suggestion"
                 onClick={() => {
                   setFormData({ ...formData, sku: item.sku });
                   setSkuSuggestions([]);
@@ -604,55 +579,55 @@ function NewItemPage() {
 
         <div className="form-section">
           <label>尺寸</label>
-          <input 
-            type="text" 
-            value={formData.size} 
-            onChange={(e) => setFormData({...formData, size: e.target.value})} 
+          <input
+            type="text"
+            value={formData.size}
+            onChange={(e) => setFormData({ ...formData, size: e.target.value })}
           />
         </div>
 
         <div className="form-section">
           <label>备注</label>
-          <input 
-            type="text" 
-            value={formData.notes} 
-            onChange={(e) => setFormData({...formData, notes: e.target.value})} 
+          <input
+            type="text"
+            value={formData.notes}
+            onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
           />
         </div>
 
         <div className="form-section">
           <label>数量</label>
-          <input 
-            type="number" 
-            min="1" 
-            value={formData.quantity} 
-            onChange={(e) => setFormData({...formData, quantity: parseInt(e.target.value)})} 
+          <input
+            type="number"
+            min="1"
+            value={formData.quantity}
+            onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) })}
           />
         </div>
 
         <div className="form-section">
           <label>入仓日期</label>
-          <input 
-            type="date" 
-            value={formData.inbounddate} 
-            onChange={(e) => setFormData({...formData, inbounddate: e.target.value})} 
+          <input
+            type="date"
+            value={formData.inbounddate}
+            onChange={(e) => setFormData({ ...formData, inbounddate: e.target.value })}
           />
         </div>
 
         <div className="form-section">
           <label>出仓日期</label>
-          <input 
-            type="date" 
-            value={formData.outbounddate} 
-            onChange={(e) => setFormData({...formData, outbounddate: e.target.value})} 
+          <input
+            type="date"
+            value={formData.outbounddate}
+            onChange={(e) => setFormData({ ...formData, outbounddate: e.target.value })}
           />
         </div>
 
         <div className="form-section">
           <label>附加信息</label>
-          <textarea 
-            value={formData.addendum} 
-            onChange={(e) => setFormData({...formData, addendum: e.target.value})}
+          <textarea
+            value={formData.addendum}
+            onChange={(e) => setFormData({ ...formData, addendum: e.target.value })}
           ></textarea>
         </div>
 
@@ -664,15 +639,105 @@ function NewItemPage() {
   );
 }
 
-function ItemPage() {
-  const { id } = useParams();
+function NewItemPage() {
+  const navigate = useNavigate();
+  const formDataTemplate = {
+    warehouse_id: "",
+    sku: "",
+    size: "",
+    notes: "",
+    quantity: 1,
+    condition_id: "1",
+    inbounddate: "",
+    outbounddate: "",
+    status_id: "1",
+    addendum: ""
+  };
 
-  return (
-    <>
-      <NavBar />
-      <h1>{id}</h1>
-    </>
-  );
+  const handleSubmit = async (formData: any) => {
+    try {
+      const res = await fetch("/api/items", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const result = await res.json();
+      if (result.success) {
+        alert("Success");
+        navigate("/");
+      } else {
+        alert("Error: " + result.message);
+      }
+    } catch (error) {
+      console.error("Submit error", error);
+    }
+  };
+
+  return <>
+    <NavBar />
+    <ItemForm title="添加新行" initialData={formDataTemplate} onSubmit={handleSubmit} />
+  </>;
+}
+
+function EditItemPage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [item, setItem] = useState<ItemData | null>(null);
+  const [history, setHistory] = useState([]);
+
+  useEffect(() => {
+    fetch(`/api/items/${id}`)
+      .then(res => res.json())
+      .then(data => {
+        setItem(data.item);
+        setHistory(data.history);
+      })
+      .catch(err => console.error("Failed to fetch item", err));
+  }, [id]);
+
+  const handleSubmit = async (formData: any) => {
+    try {
+      const res = await fetch(`/api/items/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const result = await res.json();
+      if (result.success) {
+        alert("Updated Successfully");
+        navigate("/");
+      } else {
+        alert("Error: " + result.message);
+      }
+    } catch (error) {
+      console.error("Update error", error);
+    }
+  };
+
+  console.log(history);
+
+  return <>
+    <NavBar />
+    { item &&
+      <>
+        <ItemForm title={`编辑项目`} initialData={item} onSubmit={handleSubmit} />
+        <h2>log</h2>
+        { history.map((entry, index) => (
+          <div>
+            <p key={index}>
+              <span>{new Date(entry.timestamp).toLocaleString()}</span>
+            </p>
+            <ul>
+              { Object.keys(entry.new_values).map((column, index) => (
+                <li>{column}: {entry.old_values[column] || "(空白)"} ⇾ {entry.new_values[column]}</li>
+              )) }
+            </ul>
+          </div>
+        )) }
+        <p>{new Date(item.created_at).toLocaleString()}: created</p>
+      </>
+    }
+  </>;
 }
 
 function App() {
@@ -689,7 +754,7 @@ function App() {
             <Route path="/filters" element={<FiltersMenu />} />
             <Route path="/export" element={<ExportPage />} />
             <Route path="/new" element={<NewItemPage />} />
-            <Route path="/item/:id" element={<ItemPage />} />
+            <Route path="/edit/:id" element={<EditItemPage />} />
           </Routes>
         </NotNullContext.Provider>
       </PrefixContext.Provider>
