@@ -753,17 +753,17 @@ function App() {
 
   return (
     <SortContext.Provider value={{ sortList, setSortList }}>
-      <PrefixContext.Provider value={{ prefixList, setPrefixList }}>
-        <NotNullContext.Provider value={{ notNullList, setNotNullList }}>
-          <Routes>
-            <Route path="/" element={<InventoryPage />} />
-            <Route path="/filters" element={<FiltersMenu />} />
-            <Route path="/export" element={<ExportPage />} />
-            <Route path="/new" element={<NewItemPage />} />
-            <Route path="/edit/:id" element={<EditItemPage />} />
-          </Routes>
-        </NotNullContext.Provider>
-      </PrefixContext.Provider>
+    <PrefixContext.Provider value={{ prefixList, setPrefixList }}>
+    <NotNullContext.Provider value={{ notNullList, setNotNullList }}>
+      <Routes>
+        <Route path="/" element={<InventoryPage />} />
+        <Route path="/filters" element={<FiltersMenu />} />
+        <Route path="/export" element={<ExportPage />} />
+        <Route path="/new" element={<NewItemPage />} />
+        <Route path="/edit/:id" element={<EditItemPage />} />
+      </Routes>
+    </NotNullContext.Provider>
+    </PrefixContext.Provider>
     </SortContext.Provider>
   );
 }
