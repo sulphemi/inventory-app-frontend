@@ -127,6 +127,8 @@ function SortOption({ current, updateSort, removeSort }: any) {
 }
 
 function PrefixOption({ current, updatePrefix, removePrefix }: any) {
+  const conditionNames = useContext(ConditionContext);
+
   return (
     <div>
       <select
@@ -140,12 +142,25 @@ function PrefixOption({ current, updatePrefix, removePrefix }: any) {
         ))}
       </select>
 
-      <input
-        value={current.prefix}
-        onChange={(event) => {
-          updatePrefix({ column: current.column, prefix: event.target.value });
-        }}
-      />
+      { current.column === "condition_id" ? (
+        <select
+          value={current.prefix}
+          onChange={(event) => {
+            updatePrefix({ column: current.column, prefix: event.target.value });
+          }}
+        >
+          {Object.entries(conditionNames).map(([id, name]) => (
+            <option key={id} value={id}>{name}</option>
+          ))}
+        </select>
+      ) : (
+        <input
+          value={current.prefix}
+          onChange={(event) => {
+            updatePrefix({ column: current.column, prefix: event.target.value });
+          }}
+        />
+      )}
       <button onClick={removePrefix}>delete</button>
     </div>
   );
@@ -262,6 +277,7 @@ function FiltersMenu() {
 
 function InventoryRow({ data, isEven }: { data: ItemData | null, isEven: boolean }) {
   const rowClass = `inv-row ${isEven ? "even-row" : ""}`;
+  const conditionNames = useContext(ConditionContext);
 
   if (!data) {
     return (
@@ -285,7 +301,7 @@ function InventoryRow({ data, isEven }: { data: ItemData | null, isEven: boolean
       <span className="cell cell-size">{data.size}</span>
       <span className="cell cell-notes">{data.notes}</span>
       <span className="cell cell-quantity">{data.quantity}</span>
-      <span className="cell cell-condition">{data.condition}</span>
+      <span className="cell cell-condition">{conditionNames[data.condition_id] || data.condition_id}</span>
       <span className="cell cell-inbounddate">{data.inbounddate}</span>
       <span className="cell cell-outbounddate">{data.outbounddate}</span>
     </Link>
@@ -467,7 +483,7 @@ function ExportPage() {
     <>
       <NavBar />
       <h1>Export</h1>
-      <h2>monthly summary</h2>
+      <h2 >monthly summary</h2>
       <input
         type="date"
         value={selectedDate}
@@ -483,6 +499,7 @@ function ExportPage() {
 }
 
 function ItemForm({ initialData, onSubmit, title }: { initialData: Partial<ItemData>, onSubmit: (data: any) => Promise<void>, title: string }) {
+  const conditionNames = useContext(ConditionContext);
   const [formData, setFormData] = useState({
     warehouse_id: "",
     sku: "",
@@ -497,7 +514,6 @@ function ItemForm({ initialData, onSubmit, title }: { initialData: Partial<ItemD
     ...initialData
   });
 
-  const conditionNames = useContext(ConditionContext);
   const [skuSuggestions, setSkuSuggestions] = useState<{ sku: string }[]>([]);
 
   useEffect(() => {
@@ -780,19 +796,19 @@ function App() {
 
   return (
     <ConditionContext.Provider value={conditionNames}>
-      <SortContext.Provider value={{ sortList, setSortList }}>
-        <PrefixContext.Provider value={{ prefixList, setPrefixList }}>
-          <NotNullContext.Provider value={{ notNullList, setNotNullList }}>
-            <Routes>
-              <Route path="/" element={<InventoryPage />} />
-              <Route path="/filters" element={<FiltersMenu />} />
-              <Route path="/export" element={<ExportPage />} />
-              <Route path="/new" element={<NewItemPage />} />
-              <Route path="/edit/:id" element={<EditItemPage />} />
-            </Routes>
-          </NotNullContext.Provider>
-        </PrefixContext.Provider>
-      </SortContext.Provider>
+    <SortContext.Provider value={{ sortList, setSortList }}>
+    <PrefixContext.Provider value={{ prefixList, setPrefixList }}>
+    <NotNullContext.Provider value={{ notNullList, setNotNullList }}>
+      <Routes>
+        <Route path="/" element={<InventoryPage />} />
+        <Route path="/filters" element={<FiltersMenu />} />
+        <Route path="/export" element={<ExportPage />} />
+        <Route path="/new" element={<NewItemPage />} />
+        <Route path="/edit/:id" element={<EditItemPage />} />
+      </Routes>
+    </NotNullContext.Provider>
+    </PrefixContext.Provider>
+    </SortContext.Provider>
     </ConditionContext.Provider>
   );
 }
