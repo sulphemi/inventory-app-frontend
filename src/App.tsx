@@ -448,12 +448,18 @@ function ExportPage() {
   const { prefixList } = useContext(PrefixContext);
   const { notNullList } = useContext(NotNullContext);
 
-  const getTodayDate = () => {
+  const getEOM = () => {
     const today = new Date();
-    return today.toISOString().split('T')[0];
+    const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+    const yyyy = lastDay.getFullYear();
+    const mm = String(lastDay.getMonth() + 1).padStart(2, '0');
+    const dd = String(lastDay.getDate()).padStart(2, '0');
+
+    return `${yyyy}-${mm}-${dd}`;
   };
 
-  const [selectedDate, setSelectedDate] = useState(getTodayDate());
+  const [selectedDate, setSelectedDate] = useState(getEOM());
 
   return (
     <>
