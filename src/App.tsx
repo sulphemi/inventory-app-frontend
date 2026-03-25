@@ -505,11 +505,10 @@ function ItemForm({ initialData, onSubmit, title }: { initialData: Partial<ItemD
     sku: "",
     size: "",
     notes: "",
-    quantity: 1,
+    quantity: "1",
     condition_id: "1",
     inbounddate: "",
     outbounddate: "",
-    status_id: "1",
     addendum: "",
     ...initialData
   });
@@ -564,6 +563,8 @@ function ItemForm({ initialData, onSubmit, title }: { initialData: Partial<ItemD
     e.preventDefault();
     await onSubmit(formData);
   };
+
+  console.log(formData);
 
   return (
     <>
@@ -683,11 +684,10 @@ function NewItemPage() {
     sku: "",
     size: "",
     notes: "",
-    quantity: 1,
+    quantity: "1",
     condition_id: "1",
     inbounddate: "",
     outbounddate: "",
-    status_id: "1",
     addendum: ""
   };
 
