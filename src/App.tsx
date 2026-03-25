@@ -45,6 +45,8 @@ const NotNullContext = createContext<{
   setNotNullList: (n: NotNullFilter[]) => void;
 }>({ notNullList: [], setNotNullList: () => {} });
 
+const ConditionContext = createContext<Record<number | string, string>>({});
+
 function urlBuilder(queryType: string, limit: number, offset: number, sorts: SortFilter[], prefixes: PrefixFilter[], nonnull: NotNullFilter[]) {
   let url = `/api/${queryType}?offset=${offset}&`;
 
@@ -283,7 +285,7 @@ function InventoryRow({ data, isEven }: { data: ItemData | null, isEven: boolean
       <span className="cell cell-size">{data.size}</span>
       <span className="cell cell-notes">{data.notes}</span>
       <span className="cell cell-quantity">{data.quantity}</span>
-      <span className="cell cell-condition">{data.condition_id}</span>
+      <span className="cell cell-condition">{data.condition}</span>
       <span className="cell cell-inbounddate">{data.inbounddate}</span>
       <span className="cell cell-outbounddate">{data.outbounddate}</span>
     </Link>
@@ -495,6 +497,7 @@ function ItemForm({ initialData, onSubmit, title }: { initialData: Partial<ItemD
     ...initialData
   });
 
+  const conditionNames = useContext(ConditionContext);
   const [skuSuggestions, setSkuSuggestions] = useState<{ sku: string }[]>([]);
 
   useEffect(() => {
@@ -590,6 +593,18 @@ function ItemForm({ initialData, onSubmit, title }: { initialData: Partial<ItemD
             value={formData.size}
             onChange={(e) => setFormData({ ...formData, size: e.target.value })}
           />
+        </div>
+
+        <div className="form-section">
+          <label>状况</label>
+          <select 
+            value={formData.condition_id} 
+            onChange={(e) => setFormData({...formData, condition_id: e.target.value})}
+          >
+            {Object.entries(conditionNames).map(([id, name]) => (
+              <option key={id} value={id}>{name}</option>
+            ))}
+          </select>
         </div>
 
         <div className="form-section">
@@ -720,27 +735,25 @@ function EditItemPage() {
     }
   };
 
-  console.log(history);
-
   return <>
     <NavBar />
     { item &&
       <>
         <ItemForm title={`编辑项目`} initialData={item} onSubmit={handleSubmit} />
         <h2>log</h2>
-        { history.map((entry, index) => (
-          <div>
-            <p key={index}>
+        { history.map((entry: any, index) => (
+          <div key={index}>
+            <p>
               <span>{new Date(entry.timestamp).toLocaleString()}</span>
             </p>
             <ul>
-              { Object.keys(entry.new_values).map((column, index) => (
-                <li>{column}: {entry.old_values[column] || "(空白)"} ⇾ {entry.new_values[column]}</li>
+              { Object.keys(entry.new_values).map((column, idx) => (
+                <li key={idx}>{column}: {entry.old_values[column] || "(空白)"} ⇾ {entry.new_values[column]}</li>
               )) }
             </ul>
           </div>
         )) }
-        <p>{new Date(item.created_at).toLocaleString()}: created</p>
+        <p>{new Date((item as any).created_at).toLocaleString()}: created</p>
       </>
     }
   </>;
@@ -750,21 +763,37 @@ function App() {
   const [sortList, setSortList] = useState<SortFilter[]>([]);
   const [prefixList, setPrefixList] = useState<PrefixFilter[]>([]);
   const [notNullList, setNotNullList] = useState<NotNullFilter[]>([]);
+  const [conditionNames, setConditionNames] = useState<Record<number | string, string>>({});
+
+  useEffect(() => {
+    fetch("/api/conditions")
+      .then(res => res.json())
+      .then((data: { id: number, condition: string }[]) => {
+        const mapping = data.reduce((acc, curr) => {
+          acc[curr.id] = curr.condition;
+          return acc;
+        }, {} as Record<number | string, string>);
+        setConditionNames(mapping);
+      })
+      .catch(err => console.error("Failed to fetch conditions", err));
+  }, []);
 
   return (
-    <SortContext.Provider value={{ sortList, setSortList }}>
-    <PrefixContext.Provider value={{ prefixList, setPrefixList }}>
-    <NotNullContext.Provider value={{ notNullList, setNotNullList }}>
-      <Routes>
-        <Route path="/" element={<InventoryPage />} />
-        <Route path="/filters" element={<FiltersMenu />} />
-        <Route path="/export" element={<ExportPage />} />
-        <Route path="/new" element={<NewItemPage />} />
-        <Route path="/edit/:id" element={<EditItemPage />} />
-      </Routes>
-    </NotNullContext.Provider>
-    </PrefixContext.Provider>
-    </SortContext.Provider>
+    <ConditionContext.Provider value={conditionNames}>
+      <SortContext.Provider value={{ sortList, setSortList }}>
+        <PrefixContext.Provider value={{ prefixList, setPrefixList }}>
+          <NotNullContext.Provider value={{ notNullList, setNotNullList }}>
+            <Routes>
+              <Route path="/" element={<InventoryPage />} />
+              <Route path="/filters" element={<FiltersMenu />} />
+              <Route path="/export" element={<ExportPage />} />
+              <Route path="/new" element={<NewItemPage />} />
+              <Route path="/edit/:id" element={<EditItemPage />} />
+            </Routes>
+          </NotNullContext.Provider>
+        </PrefixContext.Provider>
+      </SortContext.Provider>
+    </ConditionContext.Provider>
   );
 }
 
