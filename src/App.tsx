@@ -143,6 +143,7 @@ function PrefixOption({ current, updatePrefix, removePrefix }: any) {
         ))}
       </select>
 
+      <span>以</span>
       { current.column === "condition_id" ? (
         <select
           value={current.prefix}
@@ -162,6 +163,7 @@ function PrefixOption({ current, updatePrefix, removePrefix }: any) {
           }}
         />
       )}
+      <span>开头</span>
       <button onClick={removePrefix}>删除</button>
     </div>
   );
@@ -478,7 +480,7 @@ function ExportPage() {
     return `${yyyy}-${mm}-${dd}`;
   };
 
-  const htmlDateToExcelDate = (dateString) => {
+  const htmlDateToExcelDate = (dateString: string) => {
     if (!dateString) return "";
     const [y, m, d] = dateString.split("-");
     return `${m}/${d}/${y}`;
@@ -505,7 +507,7 @@ function ExportPage() {
         <input
           type="number"
           value={rate}
-          onchange={(e) => setRate(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRate(parseFloat(e.target.value))}
         />
       </p>
       <a href={`/api/monthly_summary?date=${htmlDateToExcelDate(selectedDate)}&rate=${rate}`}>下载</a>
@@ -524,7 +526,7 @@ function ItemForm({ initialData, onSubmit, title }: { initialData: Partial<ItemD
     sku: "",
     size: "",
     notes: "",
-    quantity: "1",
+    quantity: 1,
     condition_id: "1",
     inbounddate: "",
     outbounddate: "",
@@ -701,7 +703,7 @@ function NewItemPage() {
     sku: "",
     size: "",
     notes: "",
-    quantity: "1",
+    quantity: 1,
     condition_id: "1",
     inbounddate: "",
     outbounddate: "",
@@ -735,7 +737,6 @@ function NewItemPage() {
 
 function EditItemPage() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [item, setItem] = useState<ItemData | null>(null);
   const [history, setHistory] = useState([]);
 
