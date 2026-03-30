@@ -477,19 +477,37 @@ function ExportPage() {
     return `${yyyy}-${mm}-${dd}`;
   };
 
+  const htmlDateToExcelDate = (dateString) => {
+    if (!dateString) return "";
+    const [y, m, d] = dateString.split("-");
+    return `${m}/${d}/${y}`;
+  };
+
   const [selectedDate, setSelectedDate] = useState(getEOM());
+  const [rate, setRate] = useState(0.5);
 
   return (
     <>
       <NavBar />
       <h1>Export</h1>
-      <h2 >monthly summary</h2>
-      <input
-        type="date"
-        value={selectedDate}
-        onChange={(e) => setSelectedDate(e.target.value)}
-      />
-      <a href={`/api/monthly_summary?date=${selectedDate}`} >download</a>
+      <h2>monthly summary</h2>
+      <p>
+        结束日期:
+        <input
+          type="date"
+          value={selectedDate}
+          onChange={(e) => setSelectedDate(e.target.value)}
+        />
+      </p>
+      <p>
+        率:
+        <input
+          type="number"
+          value={rate}
+          onchange={(e) => setRate(e.target.value)}
+        />
+      </p>
+      <a href={`/api/monthly_summary?date=${htmlDateToExcelDate(selectedDate)}&rate=${rate}`}>download</a>
 
       <h2>current view</h2>
       <p><FilterCount /></p>
