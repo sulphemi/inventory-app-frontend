@@ -78,10 +78,10 @@ function NavBar() {
   return (
     <nav className="navbar">
       <ul>
-        <li><NavLink to="/">Table</NavLink></li>
-        <li><NavLink to="/filters">Filters</NavLink></li>
-        <li><NavLink to="/export">Export</NavLink></li>
-        <li><NavLink to="/new">New Item</NavLink></li>
+        <li><NavLink to="/">表格</NavLink></li>
+        <li><NavLink to="/filters">条件</NavLink></li>
+        <li><NavLink to="/export">导出</NavLink></li>
+        <li><NavLink to="/new">添加新行</NavLink></li>
       </ul>
     </nav>
   );
@@ -96,6 +96,7 @@ const columnNames: Record<string, string> = {
   "condition_id": "状况",
   "inbounddate": "入仓日期",
   "outbounddate": "出仓日期",
+  "addendum": "附加信息",
 };
 
 function SortOption({ current, updateSort, removeSort }: any) {
@@ -118,10 +119,10 @@ function SortOption({ current, updateSort, removeSort }: any) {
           updateSort({ column: current.column, direction: event.target.value as "ASC" | "DESC" });
         }}
       >
-        <option value="ASC">ascending</option>
-        <option value="DESC">descending</option>
+        <option value="ASC">升序</option>
+        <option value="DESC">降序</option>
       </select>
-      <button onClick={removeSort}>delete</button>
+      <button onClick={removeSort}>删除</button>
     </div>
   );
 }
@@ -161,7 +162,7 @@ function PrefixOption({ current, updatePrefix, removePrefix }: any) {
           }}
         />
       )}
-      <button onClick={removePrefix}>delete</button>
+      <button onClick={removePrefix}>删除</button>
     </div>
   );
 }
@@ -169,7 +170,7 @@ function PrefixOption({ current, updatePrefix, removePrefix }: any) {
 function NotNullOption({ current, updateNotNull, removeNotNull }: any) {
   return (
     <div>
-      <span>must have a</span>
+      <span>必须有</span>
       <select
         value={current.column}
         onChange={(event) => { updateNotNull({ column: event.target.value }); }}
@@ -178,7 +179,7 @@ function NotNullOption({ current, updateNotNull, removeNotNull }: any) {
           <option key={index} value={column}>{columnNames[column]}</option>
         ))}
       </select>
-      <button onClick={removeNotNull}>delete</button>
+      <button onClick={removeNotNull}>删除</button>
     </div>
   );
 }
@@ -203,10 +204,10 @@ function FiltersMenu() {
   return (
     <>
       <NavBar />
-      <h1>filters</h1>
+      <h1>条件</h1>
       <p><FilterCount /></p>
       <div>
-        <h2>sorting</h2>
+        <h2>排序</h2>
         <div>
           {sortList.map((sortObject, index) => (
             <SortOption
@@ -224,11 +225,11 @@ function FiltersMenu() {
               }}
             />
           ))}
-          <button onClick={() => { setSortList([...sortList, createSortFilter()]); }}>add new</button>
+          <button onClick={() => { setSortList([...sortList, createSortFilter()]); }}>添加</button>
         </div>
       </div>
       <div>
-        <h2>prefix</h2>
+        <h2>前缀筛选</h2>
         <div>
           {prefixList.map((prefixObject, index) => (
             <PrefixOption
@@ -246,11 +247,11 @@ function FiltersMenu() {
               }}
             />
           ))}
-          <button onClick={() => { setPrefixList([...prefixList, createPrefixFilter()]); }}>add new</button>
+          <button onClick={() => { setPrefixList([...prefixList, createPrefixFilter()]); }}>添加</button>
         </div>
       </div>
       <div>
-        <h2>not null</h2>
+        <h2>非空筛选</h2>
         <div>
           {notNullList.map((nnObject, index) => (
             <NotNullOption
@@ -268,7 +269,7 @@ function FiltersMenu() {
               }}
             />
           ))}
-          <button onClick={() => { setNotNullList([...notNullList, createNotNullFilter()]); }}>add new</button>
+          <button onClick={() => { setNotNullList([...notNullList, createNotNullFilter()]); }}>添加</button>
         </div>
       </div>
     </>
@@ -411,7 +412,7 @@ function InventoryPage() {
     <>
       <div className="inv-header">
         <NavBar />
-        <p>{totalLength} items (<FilterCount />)</p>
+        <p>{totalLength} 个项目 (<FilterCount />)</p>
       </div>
 
       <div
@@ -458,7 +459,7 @@ function FilterCount() {
   const { notNullList } = useContext(NotNullContext);
 
   const totalConditions = sortList.length + prefixList.length + notNullList.length;
-  return (<span>{totalConditions} conditions applied</span>);
+  return (<span>{totalConditions} 条件已应用</span>);
 }
 
 function ExportPage() {
@@ -489,8 +490,8 @@ function ExportPage() {
   return (
     <>
       <NavBar />
-      <h1>Export</h1>
-      <h2>monthly summary</h2>
+      <h1>导出</h1>
+      <h2>月度汇总</h2>
       <p>
         结束日期:
         <input
@@ -507,11 +508,11 @@ function ExportPage() {
           onchange={(e) => setRate(e.target.value)}
         />
       </p>
-      <a href={`/api/monthly_summary?date=${htmlDateToExcelDate(selectedDate)}&rate=${rate}`}>download</a>
+      <a href={`/api/monthly_summary?date=${htmlDateToExcelDate(selectedDate)}&rate=${rate}`}>下载</a>
 
-      <h2>current view</h2>
+      <h2>当前视图</h2>
       <p><FilterCount /></p>
-      <a href={urlBuilder("export", 0, 0, sortList, prefixList, notNullList)}>download</a>
+      <a href={urlBuilder("export", 0, 0, sortList, prefixList, notNullList)}>下载</a>
     </>
   );
 }
@@ -581,8 +582,6 @@ function ItemForm({ initialData, onSubmit, title }: { initialData: Partial<ItemD
     e.preventDefault();
     await onSubmit(formData);
   };
-
-  console.log(formData);
 
   return (
     <>
@@ -688,7 +687,7 @@ function ItemForm({ initialData, onSubmit, title }: { initialData: Partial<ItemD
         </div>
 
         <div className="form-section">
-          <button type="submit">OK</button>
+          <button type="submit">确定</button>
         </div>
       </form>
     </>
@@ -718,10 +717,10 @@ function NewItemPage() {
       });
       const result = await res.json();
       if (result.success) {
-        alert("Success");
+        alert("成功");
         navigate("/");
       } else {
-        alert("Error: " + result.message);
+        alert("错误: " + result.message);
       }
     } catch (error) {
       console.error("Submit error", error);
@@ -764,10 +763,10 @@ function EditItemPage() {
       });
       const result = await res.json();
       if (result.success) {
-        alert("Updated Successfully");
+        alert("更新成功");
         fetchData();
       } else {
-        alert("Error: " + result.message);
+        alert("错误: " + result.message);
       }
     } catch (error) {
       console.error("Update error", error);
@@ -787,12 +786,12 @@ function EditItemPage() {
             </p>
             <ul>
               { Object.keys(entry.new_values).map((column, idx) => (
-                <li key={idx}>{column}: {entry.old_values[column] || "(空白)"} ⇾ {entry.new_values[column] || "(空白)"}</li>
+                <li key={idx}>{columnNames[column]}: {entry.old_values[column] || "(空白)"} ⇾ {entry.new_values[column] || "(空白)"}</li>
               )) }
             </ul>
           </div>
         )) }
-        <p>{new Date((item as any).created_at).toLocaleString()}: 创造</p>
+        <p>{new Date((item as any).created_at).toLocaleString()}: 创建</p>
       </>
     }
   </>;
