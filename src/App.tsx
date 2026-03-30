@@ -740,15 +740,20 @@ function EditItemPage() {
   const [item, setItem] = useState<ItemData | null>(null);
   const [history, setHistory] = useState([]);
 
-  useEffect(() => {
-    fetch(`/api/items/${id}`)
-      .then(res => res.json())
-      .then(data => {
-        setItem(data.item);
-        setHistory(data.history);
-      })
-      .catch(err => console.error("Failed to fetch item", err));
+  const fetchData = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/items/${id}`);
+      const data = await res.json();
+      setItem(data.item);
+      setHistory(data.history);
+    } catch (err) {
+      console.error("Failed to fetch item", err);
+    }
   }, [id]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleSubmit = async (formData: any) => {
     try {
@@ -760,7 +765,7 @@ function EditItemPage() {
       const result = await res.json();
       if (result.success) {
         alert("Updated Successfully");
-        navigate("/");
+        fetchData();
       } else {
         alert("Error: " + result.message);
       }
@@ -774,7 +779,7 @@ function EditItemPage() {
     { item &&
       <>
         <ItemForm title={`编辑项目`} initialData={item} onSubmit={handleSubmit} />
-        <h2>log</h2>
+        <h2>记录</h2>
         { history.map((entry: any, index) => (
           <div key={index}>
             <p>
@@ -782,12 +787,12 @@ function EditItemPage() {
             </p>
             <ul>
               { Object.keys(entry.new_values).map((column, idx) => (
-                <li key={idx}>{column}: {entry.old_values[column] || "(空白)"} ⇾ {entry.new_values[column]}</li>
+                <li key={idx}>{column}: {entry.old_values[column] || "(空白)"} ⇾ {entry.new_values[column] || "(空白)"}</li>
               )) }
             </ul>
           </div>
         )) }
-        <p>{new Date((item as any).created_at).toLocaleString()}: created</p>
+        <p>{new Date((item as any).created_at).toLocaleString()}: 创造</p>
       </>
     }
   </>;
