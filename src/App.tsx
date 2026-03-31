@@ -519,6 +519,25 @@ function ExportPage() {
   );
 }
 
+function isValidDate(dateString: string) {
+  const dateObject = new Date(dateString);
+  if (isNaN(dateObject.getTime())) return false;
+  const formatted = dateObject.toISOString().split('T')[0];
+  return formatted === dateString;
+}
+
+const widToDate = (wid: string) => {
+  if (wid.length >= 6) {
+    const yyy_ = (new Date()).getFullYear().toString().slice(0, 3);
+    const _y = wid[1];
+    const mm = wid.slice(2, 4);
+    const dd = wid.slice(4, 6);
+    const interpretedDate = `${yyy_}${_y}-${mm}-${dd}`;
+    if (isValidDate(interpretedDate)) return interpretedDate;
+  }
+  return null;
+};
+
 function ItemForm({ initialData, onSubmit, title }: { initialData: Partial<ItemData>, onSubmit: (data: any) => Promise<void>, title: string }) {
   const conditionNames = useContext(ConditionContext);
   const [formData, setFormData] = useState({
@@ -541,25 +560,6 @@ function ItemForm({ initialData, onSubmit, title }: { initialData: Partial<ItemD
       setFormData(prev => ({ ...prev, ...initialData }));
     }
   }, [initialData]);
-
-  function isValidDate(dateString: string) {
-    const dateObject = new Date(dateString);
-    if (isNaN(dateObject.getTime())) return false;
-    const formatted = dateObject.toISOString().split('T')[0];
-    return formatted === dateString;
-  }
-
-  const widToDate = (wid: string) => {
-    if (wid.length >= 6) {
-      const yyy_ = (new Date()).getFullYear().toString().slice(0, 3);
-      const _y = wid[1];
-      const mm = wid.slice(2, 4);
-      const dd = wid.slice(4, 6);
-      const interpretedDate = `${yyy_}${_y}-${mm}-${dd}`;
-      if (isValidDate(interpretedDate)) return interpretedDate;
-    }
-    return null;
-  };
 
   const handleWarehouseIdChange = (val: string) => {
     const wid = val.trim();
@@ -710,6 +710,8 @@ function NewItemPage() {
     addendum: ""
   };
 
+  const [ formData, setFormData ] = useState(formDataTemplate);
+
   const handleSubmit = async (formData: any) => {
     try {
       const res = await fetch("/api/items", {
@@ -720,7 +722,8 @@ function NewItemPage() {
       const result = await res.json();
       if (result.success) {
         alert("成功");
-        navigate("/");
+        const newWid = (parseInt(formData.warehouse_id) + 1).toString();
+        setFormData({ ...formDataTemplate, warehouse_id: newWid, inbounddate: widToDate(newWid) });
       } else {
         alert("错误: " + result.message);
       }
@@ -731,7 +734,7 @@ function NewItemPage() {
 
   return <>
     <NavBar />
-    <ItemForm title="添加新行" initialData={formDataTemplate} onSubmit={handleSubmit} />
+    <ItemForm title="添加新行" initialData={formData} onSubmit={handleSubmit} />
   </>;
 }
 
