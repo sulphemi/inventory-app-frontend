@@ -739,6 +739,7 @@ function NewItemPage() {
 }
 
 function EditItemPage() {
+  const navigate = useNavigate();
   const { id } = useParams();
   const [item, setItem] = useState<ItemData | null>(null);
   const [history, setHistory] = useState([]);
@@ -777,11 +778,25 @@ function EditItemPage() {
     }
   };
 
+  const deleteItem = async () => {
+    const res = await fetch(`/api/items/${id}`, {
+      method: "DELETE",
+    });
+    const result = await res.json();
+    if (result.success) {
+      alert("删除成功");
+      navigate("/");
+    } else {
+      alert("错误");
+    }
+  }
+
   return <>
     <NavBar />
     { item &&
       <>
         <ItemForm title={`编辑项目`} initialData={item} onSubmit={handleSubmit} />
+        <button onClick={deleteItem}>删除</button>
         <h2>记录</h2>
         { history.map((entry: any, index) => (
           <div key={index}>
