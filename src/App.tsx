@@ -697,7 +697,6 @@ function ItemForm({ initialData, onSubmit, title }: { initialData: Partial<ItemD
 }
 
 function NewItemPage() {
-  const navigate = useNavigate();
   const formDataTemplate = {
     warehouse_id: "",
     sku: "",
@@ -723,7 +722,7 @@ function NewItemPage() {
       if (result.success) {
         alert("成功");
         const newWid = (parseInt(formData.warehouse_id) + 1).toString();
-        setFormData({ ...formDataTemplate, warehouse_id: newWid, inbounddate: widToDate(newWid) });
+        setFormData({ ...formDataTemplate, warehouse_id: newWid, inbounddate: widToDate(newWid) || "" });
       } else {
         alert("错误: " + result.message);
       }
