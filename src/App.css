@@ -113,6 +113,14 @@ body {
     width: 150px;
 }
 
+.cell-status {
+    width: 200px;
+}
+
+.cell-addendum {
+    min-width: 600px;
+}
+
 .sku-box {
     border: 1px solid black;
     height: 200px;

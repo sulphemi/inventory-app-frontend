@@ -293,6 +293,8 @@ function InventoryRow({ data, isEven }: { data: ItemData | null, isEven: boolean
         <span className="cell cell-condition">...</span>
         <span className="cell cell-inbounddate">...</span>
         <span className="cell cell-outbounddate">...</span>
+        <span className="cell cell-status">...</span>
+        <span className="cell cell-addendum">...</span>
       </div>
     );
   }
@@ -304,9 +306,11 @@ function InventoryRow({ data, isEven }: { data: ItemData | null, isEven: boolean
       <span className="cell cell-size">{data.size}</span>
       <span className="cell cell-notes">{data.notes}</span>
       <span className="cell cell-quantity">{data.quantity}</span>
-      <span className="cell cell-condition">{conditionNames[data.condition_id] || data.condition_id}</span>
+      <span className="cell cell-condition">{data.condition}</span>
       <span className="cell cell-inbounddate">{data.inbounddate}</span>
       <span className="cell cell-outbounddate">{data.outbounddate}</span>
+      <span className="cell cell-status">{data.status}</span>
+      <span className="cell cell-addendum">{data.addendum}</span>
     </Link>
   );
 }
@@ -432,6 +436,8 @@ function InventoryPage() {
           <span className="cell cell-condition">状况</span>
           <span className="cell cell-inbounddate">入仓日期</span>
           <span className="cell cell-outbounddate">出仓日期</span>
+          <span className="cell cell-status">处理</span>
+          <span className="cell cell-addendum">附加信息</span>
         </div>
 
         <div style={{ height: totalLength * ROW_HEIGHT, position: "relative" }}>
