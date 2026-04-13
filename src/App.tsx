@@ -16,6 +16,20 @@ interface ItemData {
   addendum: string;
 }
 
+interface ItemInfo {
+  internal_id: string;
+  warehouse_id: string;
+  sku: string;
+  size: string;
+  notes: string;
+  quantity: number;
+  condition: string;
+  inbounddate: string;
+  outbounddate: string;
+  status: string;
+  addendum: string;
+}
+
 interface SortFilter {
   column: string;
   direction: "ASC" | "DESC";
@@ -278,9 +292,8 @@ function FiltersMenu() {
   );
 }
 
-function InventoryRow({ data, isEven }: { data: ItemData | null, isEven: boolean }) {
+function InventoryRow({ data, isEven }: { data: ItemInfo | null, isEven: boolean }) {
   const rowClass = `inv-row ${isEven ? "even-row" : ""}`;
-  const conditionNames = useContext(ConditionContext);
 
   if (!data) {
     return (
@@ -320,7 +333,7 @@ function InventoryPage() {
   const { prefixList } = useContext(PrefixContext);
   const { notNullList } = useContext(NotNullContext);
 
-  const [items, setItems] = useState<(ItemData | null)[]>([]);
+  const [items, setItems] = useState<(ItemInfo | null)[]>([]);
   const [totalLength, setTotalLength] = useState(0);
   const [scrollTop, setScrollTop] = useState(0);
   const [viewportHeight, setViewportHeight] = useState(0);
