@@ -181,6 +181,10 @@ export function InventoryPage() {
             })}
           </div>
         </div>
+
+        <div className="inv-footer">
+          <p>(结)</p>
+        </div>
       </div>
     </>
   );

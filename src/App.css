@@ -66,6 +66,10 @@ body {
     border-bottom: 1px solid var(--gray);
 }
 
+.inv-row:hover {
+    background-color: var(--light-yellow);
+}
+
 .row-ok {
     background-color: var(--white);
 }
@@ -74,8 +78,18 @@ body {
     background-color: var(--gray);
 }
 
-.inv-row:hover {
-    background-color: var(--light-yellow);
+.inv-footer {
+    width: 100%;
+    height: 50px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.inv-footer p {
+    text-align: center;
+    margin: 0;
+    font-style: italic;
+    color: var(--gray);
 }
 
 .cell {
