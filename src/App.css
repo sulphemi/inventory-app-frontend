@@ -33,11 +33,33 @@ select {
     background: var(--white);
 }
 
+button {
+    background-color: var(--black);
+    color: var(--white);
+    border-radius: 5px;
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: var(--dark-gray);
+}
+
+.item-form {
+    width: fit-content;
+}
+
 .form-section label {
     display: inline-block;
     width: 100px;
     text-align: right;
     margin-right: 10px;
+}
+
+.form-submit {
+    margin-top: 10px;
+    text-align: center;
 }
 
 #table-header {

@@ -85,7 +85,7 @@ export function ItemForm({ initialData, onSubmit, title }: { initialData: Partia
   return (
     <>
       <h1>{title}</h1>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="item-form">
         <div className="form-section">
           <label>序号</label>
           <input
@@ -192,8 +192,8 @@ export function ItemForm({ initialData, onSubmit, title }: { initialData: Partia
           ></textarea>
         </div>
 
-        <div className="form-section">
-          <button type="submit">确定</button>
+        <div className="form-section form-submit">
+          <button type="submit">完成</button>
         </div>
       </form>
     </>
