@@ -59,7 +59,7 @@ export function ItemForm({ initialData, onSubmit, title }: { initialData: Partia
           <input
             type="text"
             required
-            value={formData.warehouse_id}
+            value={formData.warehouse_id ?? ""}
             onChange={(e) => handleWarehouseIdChange(e.target.value)}
           />
         </div>
@@ -68,7 +68,7 @@ export function ItemForm({ initialData, onSubmit, title }: { initialData: Partia
           <label>SKU</label>
           <input
             type="text"
-            value={formData.sku}
+            value={formData.sku ?? ""}
             onChange={(e) => handleSkuInput(e.target.value)}
           />
           <div className="sku-box">
@@ -91,7 +91,7 @@ export function ItemForm({ initialData, onSubmit, title }: { initialData: Partia
           <label>尺寸</label>
           <input
             type="text"
-            value={formData.size}
+            value={formData.size ?? ""}
             onChange={(e) => setFormData({ ...formData, size: e.target.value })}
           />
         </div>
@@ -99,7 +99,7 @@ export function ItemForm({ initialData, onSubmit, title }: { initialData: Partia
         <div className="form-section">
           <label>状况</label>
           <select
-            value={formData.condition_id}
+            value={formData.condition_id ?? ""}
             onChange={(e) => setFormData({ ...formData, condition_id: e.target.value })}
           >
             {Object.entries(conditionNames).map(([id, name]) => (
@@ -112,7 +112,7 @@ export function ItemForm({ initialData, onSubmit, title }: { initialData: Partia
           <label>备注</label>
           <input
             type="text"
-            value={formData.notes}
+            value={formData.notes ?? ""}
             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
           />
         </div>
@@ -122,7 +122,7 @@ export function ItemForm({ initialData, onSubmit, title }: { initialData: Partia
           <input
             type="number"
             min="0"
-            value={formData.quantity}
+            value={formData.quantity ?? ""}
             onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) })}
           />
         </div>
@@ -131,7 +131,7 @@ export function ItemForm({ initialData, onSubmit, title }: { initialData: Partia
           <label>入仓日期</label>
           <input
             type="date"
-            value={formData.inbounddate}
+            value={formData.inbounddate ?? ""}
             onChange={(e) => setFormData({ ...formData, inbounddate: e.target.value })}
           />
         </div>
@@ -140,7 +140,7 @@ export function ItemForm({ initialData, onSubmit, title }: { initialData: Partia
           <label>出仓日期</label>
           <input
             type="date"
-            value={formData.outbounddate}
+            value={formData.outbounddate ?? ""}
             onChange={(e) => setFormData({ ...formData, outbounddate: e.target.value })}
           />
         </div>
@@ -148,7 +148,7 @@ export function ItemForm({ initialData, onSubmit, title }: { initialData: Partia
         <div className="form-section">
           <label>附加信息</label>
           <textarea
-            value={formData.addendum}
+            value={formData.addendum ?? ""}
             onChange={(e) => setFormData({ ...formData, addendum: e.target.value })}
           ></textarea>
         </div>
