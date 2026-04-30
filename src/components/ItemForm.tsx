@@ -22,6 +22,7 @@ export function ItemForm({ initialData, onSubmit }: { initialData: Partial<ItemD
   const [isSkuFocused, setIsSkuFocused] = useState(false);
   const [selectedSKUIndex, setSelectedSKUIndex] = useState(-1);
   const skuBoxRef = useRef<HTMLDivElement>(null);
+  const skuInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (skuBoxRef.current && selectedSKUIndex >= 0) {
@@ -80,6 +81,7 @@ export function ItemForm({ initialData, onSubmit }: { initialData: Partial<ItemD
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await onSubmit(formData);
+    skuInputRef.current?.focus();
   };
 
   return (
@@ -99,6 +101,7 @@ export function ItemForm({ initialData, onSubmit }: { initialData: Partial<ItemD
           <label>SKU</label>
           <div className="sku-container">
             <input
+              ref={skuInputRef}
               type="text"
               value={formData.sku ?? ""}
               onChange={(e) => handleSkuInput(e.target.value)}
