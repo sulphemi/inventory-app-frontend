@@ -3,7 +3,7 @@ import type { ItemData } from "../types";
 import { ConditionContext } from "../contexts";
 import { widToDate } from "../utils/dateUtils";
 
-export function ItemForm({ initialData, onSubmit, title }: { initialData: Partial<ItemData>, onSubmit: (data: any) => Promise<void>, title: string }) {
+export function ItemForm({ initialData, onSubmit }: { initialData: Partial<ItemData>, onSubmit: (data: any) => Promise<void> }) {
   const conditionNames = useContext(ConditionContext);
   const [formData, setFormData] = useState({
     warehouse_id: "",
@@ -84,7 +84,6 @@ export function ItemForm({ initialData, onSubmit, title }: { initialData: Partia
 
   return (
     <>
-      <h1>{title}</h1>
       <form onSubmit={handleSubmit} className="item-form">
         <div className="form-section">
           <label>序号</label>

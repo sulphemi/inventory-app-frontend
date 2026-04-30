@@ -32,29 +32,36 @@ export function ExportPage() {
   return (
     <>
       <NavBar />
-      <h1>导出</h1>
-      <h2>月度汇总</h2>
-      <p>
-        结束日期:
-        <input
-          type="date"
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
-        />
-      </p>
-      <p>
-        率:
-        <input
-          type="number"
-          value={rate}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRate(parseFloat(e.target.value))}
-        />
-      </p>
-      <a href={`/api/monthly_summary?date=${htmlDateToExcelDate(selectedDate)}&rate=${rate}`}>下载</a>
+      <div className="page">
+        <h1>导出</h1>
 
-      <h2>当前视图</h2>
-      <p><FilterCount /></p>
-      <a href={urlBuilder("export", 0, 0, sortList, prefixList, notNullList)}>下载</a>
+        <div className="module">
+          <h2>月度汇总</h2>
+          <p>
+            结束日期:
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+            />
+          </p>
+          <p>
+            率:
+            <input
+              type="number"
+              value={rate}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRate(parseFloat(e.target.value))}
+            />
+          </p>
+          <a href={`/api/monthly_summary?date=${htmlDateToExcelDate(selectedDate)}&rate=${rate}`}>下载</a>
+        </div>
+
+        <div className="module">
+          <h2>当前视图</h2>
+          <p><FilterCount /></p>
+          <a href={urlBuilder("export", 0, 0, sortList, prefixList, notNullList)}>下载</a>
+        </div>
+      </div>
     </>
   );
 }

@@ -7,6 +7,8 @@
     --dark-gray: #606060;
     --black: #000000;
     --light-yellow: #f8f8c4;
+    --red: #ff7d71;
+    --dark-red: #ff4d4f;
 }
 
 * {
@@ -24,13 +26,21 @@ body {
 input {
     height: 30px;
     border: 1px solid var(--dark-gray);
-    background: var(--white);
+    background: none;
 }
 
 select {
     height: 30px;
     border: 1px solid var(--dark-gray);
-    background: var(--white);
+    background: none;
+    cursor: pointer;
+}
+
+textarea {
+    border: 1px solid var(--dark-gray);
+    background: none;
+    height: 100px;
+    font-size: 14px;
 }
 
 button {
@@ -44,6 +54,43 @@ button {
 
 button:hover {
     background-color: var(--dark-gray);
+}
+
+.page {
+    padding: 0 10px;
+}
+
+.module {
+    border: solid 1px var(--dark-gray);
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+.module h2 {
+    margin: 0;
+    margin-bottom: 10px;
+}
+
+.filters {
+    margin-bottom: 10px;
+}
+
+.remove-button {
+    background: none;
+    color: var(--black);
+    padding: 0;
+    height: 30px;
+    width: 30px;
+    font-weight: bold;
+}
+
+.remove-button:hover {
+    background: none;
+    color: var(--gray);
+}
+
+.filter-option:has(.remove-button:hover) {
+    background-color: var(--light-yellow);
 }
 
 .item-form {
@@ -212,6 +259,26 @@ button:hover {
 
 .sku-suggestion:hover,
 .sku-suggestion.active {
-    color: white;
-    background: black;
+    color: var(--white);
+    background: var(--black);
+}
+
+.button-delete-confirm {
+    background-color: var(--red);
+    color: var(--white);
+}
+
+.button-delete-confirm:hover {
+    background-color: var(--dark-red);
+}
+
+.history-entry {
+    border-bottom: 1px solid var(--light-gray);
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+}
+
+.history-entry ul,
+.history-entry p {
+    margin: 0;
 }

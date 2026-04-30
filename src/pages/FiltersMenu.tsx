@@ -7,7 +7,7 @@ import { FilterCount } from "../components/FilterCount";
 
 function SortOption({ current, updateSort, removeSort }: any) {
   return (
-    <div>
+    <div className="filter-option">
       <select
         value={current.column}
         onChange={(event) => {
@@ -28,7 +28,7 @@ function SortOption({ current, updateSort, removeSort }: any) {
         <option value="ASC">升序</option>
         <option value="DESC">降序</option>
       </select>
-      <button onClick={removeSort}>删除</button>
+      <button className="remove-button" onClick={removeSort}>×</button>
     </div>
   );
 }
@@ -37,7 +37,7 @@ function PrefixOption({ current, updatePrefix, removePrefix }: any) {
   const conditionNames = useContext(ConditionContext);
 
   return (
-    <div>
+    <div className="filter-option">
       <select
         value={current.column}
         onChange={(event) => {
@@ -70,14 +70,14 @@ function PrefixOption({ current, updatePrefix, removePrefix }: any) {
         />
       )}
       <span>开头</span>
-      <button onClick={removePrefix}>删除</button>
+      <button className="remove-button" onClick={removePrefix}>×</button>
     </div>
   );
 }
 
 function NotNullOption({ current, updateNotNull, removeNotNull }: any) {
   return (
-    <div>
+    <div className="filter-option">
       <span>必须有</span>
       <select
         value={current.column}
@@ -87,7 +87,7 @@ function NotNullOption({ current, updateNotNull, removeNotNull }: any) {
           <option key={index} value={column}>{columnNames[column]}</option>
         ))}
       </select>
-      <button onClick={removeNotNull}>删除</button>
+      <button className="remove-button" onClick={removeNotNull}>×</button>
     </div>
   );
 }
@@ -112,71 +112,75 @@ export function FiltersMenu() {
   return (
     <>
       <NavBar />
-      <h1>条件</h1>
-      <p><FilterCount /></p>
-      <div>
-        <h2>排序</h2>
-        <div>
-          {sortList.map((sortObject, index) => (
-            <SortOption
-              key={index}
-              current={sortObject}
-              updateSort={(newSort: any) => {
-                const newSortList = [...sortList];
-                newSortList[index] = newSort;
-                setSortList(newSortList);
-              }}
-              removeSort={() => {
-                const newSortList = [...sortList];
-                newSortList.splice(index, 1);
-                setSortList(newSortList);
-              }}
-            />
-          ))}
+      <div className="page">
+        <h1>条件</h1>
+        <p><FilterCount /></p>
+        <div className="module">
+          <h2>排序</h2>
+          <div className="filters">
+            {sortList.map((sortObject, index) => (
+              <SortOption
+                key={index}
+                current={sortObject}
+                updateSort={(newSort: any) => {
+                  const newSortList = [...sortList];
+                  newSortList[index] = newSort;
+                  setSortList(newSortList);
+                }}
+                removeSort={() => {
+                  const newSortList = [...sortList];
+                  newSortList.splice(index, 1);
+                  setSortList(newSortList);
+                }}
+              />
+            ))}
+          </div>
           <button onClick={() => { setSortList([...sortList, createSortFilter()]); }}>添加</button>
         </div>
-      </div>
-      <div>
-        <h2>前缀筛选</h2>
-        <div>
-          {prefixList.map((prefixObject, index) => (
-            <PrefixOption
-              key={index}
-              current={prefixObject}
-              updatePrefix={(newPrefix: any) => {
-                const newPrefixList = [...prefixList];
-                newPrefixList[index] = newPrefix;
-                setPrefixList(newPrefixList);
-              }}
-              removePrefix={() => {
-                const newPrefixList = [...prefixList];
-                newPrefixList.splice(index, 1);
-                setPrefixList(newPrefixList);
-              }}
-            />
-          ))}
+
+        <div className="module">
+          <h2>前缀筛选</h2>
+          <div className="filters">
+            {prefixList.map((prefixObject, index) => (
+              <PrefixOption
+                key={index}
+                current={prefixObject}
+                updatePrefix={(newPrefix: any) => {
+                  const newPrefixList = [...prefixList];
+                  newPrefixList[index] = newPrefix;
+                  setPrefixList(newPrefixList);
+                }}
+                removePrefix={() => {
+                  const newPrefixList = [...prefixList];
+                  newPrefixList.splice(index, 1);
+                  setPrefixList(newPrefixList);
+                }}
+              />
+            ))}
+          </div>
           <button onClick={() => { setPrefixList([...prefixList, createPrefixFilter()]); }}>添加</button>
         </div>
-      </div>
-      <div>
-        <h2>非空筛选</h2>
-        <div>
-          {notNullList.map((nnObject, index) => (
-            <NotNullOption
-              key={index}
-              current={nnObject}
-              updateNotNull={(newNN: any) => {
-                const newNNList = [...notNullList];
-                newNNList[index] = newNN;
-                setNotNullList(newNNList);
-              }}
-              removeNotNull={() => {
-                const newNNList = [...notNullList];
-                newNNList.splice(index, 1);
-                setNotNullList(newNNList);
-              }}
-            />
-          ))}
+
+        <div className="module">
+          <h2>非空筛选</h2>
+          <div className="filters">
+            {notNullList.map((nnObject, index) => (
+              <NotNullOption
+                key={index}
+                current={nnObject}
+                updateNotNull={(newNN: any) => {
+                  const newNNList = [...notNullList];
+                  newNNList[index] = newNN;
+                  setNotNullList(newNNList);
+                }}
+                removeNotNull={() => {
+                  const newNNList = [...notNullList];
+                  newNNList.splice(index, 1);
+                  setNotNullList(newNNList);
+                }}
+              />
+            ))}
+          </div>
           <button onClick={() => { setNotNullList([...notNullList, createNotNullFilter()]); }}>添加</button>
         </div>
       </div>

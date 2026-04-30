@@ -49,6 +49,9 @@ export function NewItemPage() {
 
   return <>
     <NavBar />
-    <ItemForm title="添加新行" initialData={formData} onSubmit={handleSubmit} />
+    <div className="page">
+      <h1>添加新行</h1>
+      <ItemForm initialData={formData} onSubmit={handleSubmit} />
+    </div>
   </>;
 }
