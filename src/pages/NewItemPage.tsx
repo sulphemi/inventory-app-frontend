@@ -18,6 +18,15 @@ export function NewItemPage() {
 
   const [formData, setFormData] = useState(formDataTemplate);
 
+  const incrementWid = (wid: string): string => {
+    const fixedPart = wid.slice(0, 6);
+    const suffixPart = wid.slice(6);
+    const suffixNum = parseInt(suffixPart);
+    const newSuffixNum = suffixNum + 1;
+
+    return fixedPart + newSuffixNum.toString();
+  }
+
   const handleSubmit = async (formData: any) => {
     try {
       const res = await fetch("/api/items", {
@@ -28,7 +37,7 @@ export function NewItemPage() {
       const result = await res.json();
       if (result.success) {
         alert("成功");
-        const newWid = (parseInt(formData.warehouse_id) + 1).toString();
+        const newWid = incrementWid(formData.warehouse_id);
         setFormData({ ...formDataTemplate, warehouse_id: newWid, inbounddate: widToDate(newWid) || "" });
       } else {
         alert("错误: " + result.message);
