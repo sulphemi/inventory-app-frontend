@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import type { ItemData } from "../types";
 import { ConditionContext } from "../contexts";
 import { widToDate } from "../utils/dateUtils";
@@ -19,6 +19,38 @@ export function ItemForm({ initialData, onSubmit, title }: { initialData: Partia
   });
 
   const [skuSuggestions, setSkuSuggestions] = useState<{ sku: string }[]>([]);
+  const [isSkuFocused, setIsSkuFocused] = useState(false);
+  const [selectedSKUIndex, setSelectedSKUIndex] = useState(-1);
+  const skuBoxRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (skuBoxRef.current && selectedSKUIndex >= 0) {
+      const activeElement = skuBoxRef.current.children[selectedSKUIndex] as HTMLElement;
+      if (activeElement) {
+        activeElement.scrollIntoView({ block: "nearest" });
+      }
+    }
+  }, [selectedSKUIndex]);
+
+  useEffect(() => {
+    setSelectedSKUIndex(-1);
+  }, [skuSuggestions]);
+
+  const handleSKUKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!isSkuFocused || skuSuggestions.length === 0) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setSelectedSKUIndex((prev) => (prev < skuSuggestions.length - 1 ? prev + 1 : prev));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setSelectedSKUIndex((prev) => (prev > 0 ? prev - 1 : 0));
+    } else if (e.key === "Enter" && selectedSKUIndex >= 0) {
+      e.preventDefault();
+      setFormData({ ...formData, sku: skuSuggestions[selectedSKUIndex].sku });
+      setSkuSuggestions([]);
+    }
+  };
 
   useEffect(() => {
     if (initialData) {
@@ -66,24 +98,31 @@ export function ItemForm({ initialData, onSubmit, title }: { initialData: Partia
 
         <div className="form-section">
           <label>SKU</label>
-          <input
-            type="text"
-            value={formData.sku ?? ""}
-            onChange={(e) => handleSkuInput(e.target.value)}
-          />
-          <div className="sku-box">
-            {skuSuggestions.map((item, i) => (
-              <p
-                key={i}
-                className="sku-suggestion"
-                onClick={() => {
-                  setFormData({ ...formData, sku: item.sku });
-                  setSkuSuggestions([]);
-                }}
-              >
-                {item.sku}
-              </p>
-            ))}
+          <div className="sku-container">
+            <input
+              type="text"
+              value={formData.sku ?? ""}
+              onChange={(e) => handleSkuInput(e.target.value)}
+              onFocus={() => setIsSkuFocused(true)}
+              onBlur={() => setIsSkuFocused(false)}
+              onKeyDown={handleSKUKeyDown}
+            />
+            {(isSkuFocused && skuSuggestions.length > 0) && (
+              <div className="sku-box" ref={skuBoxRef} tabIndex={-1}>
+                {skuSuggestions.map((item, i) => (
+                  <p
+                    key={i}
+                    className={`sku-suggestion ${i === selectedSKUIndex ? "active" : ""}`}
+                    onMouseDown={() => {
+                      setFormData({ ...formData, sku: item.sku });
+                      setSkuSuggestions([]);
+                    }}
+                  >
+                    {item.sku}
+                  </p>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

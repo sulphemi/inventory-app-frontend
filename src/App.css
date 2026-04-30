@@ -4,6 +4,7 @@
     --white: #ffffff;
     --light-gray: #e0e0e0;
     --gray: #c4c4c4;
+    --dark-gray: #606060;
     --black: #000000;
     --light-yellow: #f8f8c4;
 }
@@ -18,6 +19,25 @@
 
 body {
     margin: 0px;
+}
+
+input {
+    height: 30px;
+    border: 1px solid var(--dark-gray);
+    background: var(--white);
+}
+
+select {
+    height: 30px;
+    border: 1px solid var(--dark-gray);
+    background: var(--white);
+}
+
+.form-section label {
+    display: inline-block;
+    width: 100px;
+    text-align: right;
+    margin-right: 10px;
 }
 
 #table-header {
@@ -140,10 +160,24 @@ body {
     min-width: 600px;
 }
 
+.sku-container {
+    position: relative;
+    display: inline-block;
+}
+
 .sku-box {
     border: 1px solid black;
-    height: 200px;
-    overflow: scroll;
+    max-height: 200px;
+    overflow-y: auto;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    box-sizing: border-box;
+    background: white;
+    z-index: 10;
+    max-height: 200px;
+    overflow-y: scroll;
 }
 
 .sku-suggestion {
@@ -154,7 +188,8 @@ body {
 }
 
 
-.sku-suggestion:hover {
+.sku-suggestion:hover,
+.sku-suggestion.active {
     color: white;
     background: black;
 }
