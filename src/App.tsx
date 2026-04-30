@@ -673,7 +673,7 @@ function ItemForm({ initialData, onSubmit, title }: { initialData: Partial<ItemD
           <label>数量</label>
           <input
             type="number"
-            min="1"
+            min="0"
             value={formData.quantity}
             onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) })}
           />
