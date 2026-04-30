@@ -47,17 +47,17 @@ interface NotNullFilter {
 const SortContext = createContext<{
   sortList: SortFilter[];
   setSortList: (s: SortFilter[]) => void;
-}>({ sortList: [], setSortList: () => {} });
+}>({ sortList: [], setSortList: () => { } });
 
 const PrefixContext = createContext<{
   prefixList: PrefixFilter[];
   setPrefixList: (p: PrefixFilter[]) => void;
-}>({ prefixList: [], setPrefixList: () => {} });
+}>({ prefixList: [], setPrefixList: () => { } });
 
 const NotNullContext = createContext<{
   notNullList: NotNullFilter[];
   setNotNullList: (n: NotNullFilter[]) => void;
-}>({ notNullList: [], setNotNullList: () => {} });
+}>({ notNullList: [], setNotNullList: () => { } });
 
 const ConditionContext = createContext<Record<number | string, string>>({});
 
@@ -158,7 +158,7 @@ function PrefixOption({ current, updatePrefix, removePrefix }: any) {
       </select>
 
       <span>以</span>
-      { current.column === "condition_id" ? (
+      {current.column === "condition_id" ? (
         <select
           value={current.prefix}
           onChange={(event) => {
@@ -292,8 +292,8 @@ function FiltersMenu() {
   );
 }
 
-function InventoryRow({ data, isEven }: { data: ItemInfo | null, isEven: boolean }) {
-  const rowClass = `inv-row ${isEven ? "even-row" : ""}`;
+function InventoryRow({ data }: { data: ItemInfo | null }) {
+  const rowClass = `inv-row + ${data?.status === "二次销售" ? "row-ok" : "row-not-ok"}`;
 
   if (!data) {
     return (
@@ -457,13 +457,11 @@ function InventoryPage() {
           <div style={{ transform: `translateY(${startIndex * ROW_HEIGHT}px)` }}>
             {visibleItems.map((item, index) => {
               const actualIndex = startIndex + index;
-              const isEvenRow = actualIndex % 2 === 0;
 
               return (
                 <InventoryRow
                   key={item?.internal_id || `fake-${actualIndex}`}
                   data={item}
-                  isEven={isEvenRow}
                 />
               );
             })}
@@ -652,9 +650,9 @@ function ItemForm({ initialData, onSubmit, title }: { initialData: Partial<ItemD
 
         <div className="form-section">
           <label>状况</label>
-          <select 
-            value={formData.condition_id} 
-            onChange={(e) => setFormData({...formData, condition_id: e.target.value})}
+          <select
+            value={formData.condition_id}
+            onChange={(e) => setFormData({ ...formData, condition_id: e.target.value })}
           >
             {Object.entries(conditionNames).map(([id, name]) => (
               <option key={id} value={id}>{name}</option>
@@ -728,7 +726,7 @@ function NewItemPage() {
     addendum: ""
   };
 
-  const [ formData, setFormData ] = useState(formDataTemplate);
+  const [formData, setFormData] = useState(formDataTemplate);
 
   const handleSubmit = async (formData: any) => {
     try {
@@ -811,23 +809,23 @@ function EditItemPage() {
 
   return <>
     <NavBar />
-    { item &&
+    {item &&
       <>
         <ItemForm title={`编辑项目`} initialData={item} onSubmit={handleSubmit} />
         <button onClick={deleteItem}>删除</button>
         <h2>记录</h2>
-        { history.map((entry: any, index) => (
+        {history.map((entry: any, index) => (
           <div key={index}>
             <p>
               <span>{new Date(entry.timestamp).toLocaleString()}</span>
             </p>
             <ul>
-              { Object.keys(entry.new_values).map((column, idx) => (
+              {Object.keys(entry.new_values).map((column, idx) => (
                 <li key={idx}>{columnNames[column]}: {entry.old_values[column] || "(空白)"} ⇾ {entry.new_values[column] || "(空白)"}</li>
-              )) }
+              ))}
             </ul>
           </div>
-        )) }
+        ))}
         <p>{new Date((item as any).created_at).toLocaleString()}: 创建</p>
       </>
     }
@@ -855,19 +853,19 @@ function App() {
 
   return (
     <ConditionContext.Provider value={conditionNames}>
-    <SortContext.Provider value={{ sortList, setSortList }}>
-    <PrefixContext.Provider value={{ prefixList, setPrefixList }}>
-    <NotNullContext.Provider value={{ notNullList, setNotNullList }}>
-      <Routes>
-        <Route path="/" element={<InventoryPage />} />
-        <Route path="/filters" element={<FiltersMenu />} />
-        <Route path="/export" element={<ExportPage />} />
-        <Route path="/new" element={<NewItemPage />} />
-        <Route path="/edit/:id" element={<EditItemPage />} />
-      </Routes>
-    </NotNullContext.Provider>
-    </PrefixContext.Provider>
-    </SortContext.Provider>
+      <SortContext.Provider value={{ sortList, setSortList }}>
+        <PrefixContext.Provider value={{ prefixList, setPrefixList }}>
+          <NotNullContext.Provider value={{ notNullList, setNotNullList }}>
+            <Routes>
+              <Route path="/" element={<InventoryPage />} />
+              <Route path="/filters" element={<FiltersMenu />} />
+              <Route path="/export" element={<ExportPage />} />
+              <Route path="/new" element={<NewItemPage />} />
+              <Route path="/edit/:id" element={<EditItemPage />} />
+            </Routes>
+          </NotNullContext.Provider>
+        </PrefixContext.Provider>
+      </SortContext.Provider>
     </ConditionContext.Provider>
   );
 }

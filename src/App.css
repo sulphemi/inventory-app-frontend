@@ -63,10 +63,15 @@ body {
 .inv-row {
     display: flex;
     height: 26px;
+    border-bottom: 1px solid var(--gray);
 }
 
-.even-row {
-    background-color: var(--light-gray);
+.row-ok {
+    background-color: var(--white);
+}
+
+.row-not-ok {
+    background-color: var(--gray);
 }
 
 .inv-row:hover {
